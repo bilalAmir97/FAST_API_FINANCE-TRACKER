@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Onyx Private Limited - Register</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="login-gradient-bg">
+
+    <div class="login-container">
+        <div class="glass-card login-card login-card-custom">
+            <h1 class="playfair-display">Join Onyx Private Limited Banking System</h1>
+            <p class="inter-font">Create your exclusive account</p>
+            
+            <form id="registerForm">
+                <div class="input-group">
+                    <input type="text" id="firstName" class="glass-input" placeholder="First Name" required>
+                </div>
+                <div class="input-group">
+                    <input type="text" id="lastName" class="glass-input" placeholder="Last Name" required>
+                </div>
+                <div class="input-group">
+                    <input type="text" id="regUsername" class="glass-input" placeholder="Username" required>
+                </div>
+                <div class="input-group">
+                    <input type="email" id="email" class="glass-input" placeholder="Email Address" required>
+                </div>
+                <div class="input-group">
+                    <input type="tel" id="phone" class="glass-input" placeholder="Phone Number" required>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="regPin" class="glass-input" placeholder="Create 4-digit PIN" maxlength="4" pattern="\d{4}" required>
+                </div>
+                <button type="submit" class="glass-btn">Create Account</button>
+            </form>
+            
+            <div class="login-footer inter-font">
+                <span>Already a member?</span>
+                <a href="index.html" class="text-link">Login</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- GSAP CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <!-- Main JavaScript -->
+    <script src="assets/js/main.js"></script>
+    <!-- Animations JavaScript -->
+    <script src="assets/js/animations.js"></script>
+</body>
+</html>

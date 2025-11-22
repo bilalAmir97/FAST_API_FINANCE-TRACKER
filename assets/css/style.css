@@ -1,0 +1,1023 @@
+/* --- Google Fonts Import --- */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Playfair+Display:wght@700&display=swap");
+
+/* --- CSS Reset --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* --- Global CSS Variables --- */
+:root {
+  /* Color Palette */
+  --primary-color: #0a0a0a;
+  --accent-color: #d4af37;
+  --text-color: #ffffff;
+  --glass-bg: rgba(255, 255, 255, 0.05); /* Light glass effect */
+  --glass-border: rgba(255, 255, 255, 0.2);
+
+  /* Typography */
+  --font-primary: "Inter", sans-serif;
+  --font-secondary: "Playfair Display", serif;
+
+  /* Spacing & Sizing */
+  --border-radius: 15px;
+  --card-padding: 2rem;
+  --transition-speed: 0.3s;
+}
+
+h1, h2 {
+    font-family: var(--font-secondary);
+}
+
+/* --- Base Body Styles --- */body {
+  font-family: var(--font-primary);
+  color: var(--text-color);
+  line-height: 1.6;
+  overflow: hidden; /* Prevent all scroll for this layout */
+  background-color: var(--primary-color);
+}
+.login-gradient-bg {
+  background: linear-gradient(135deg, #1a1a1a, #0a0a0a, rgba(212, 175, 55, 0.04), #050505);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+  /* position: fixed;
+  top: 0;
+  left: 0; */
+  width: 100%;
+  height: 100%;
+  /* z-index: -1; */
+}
+
+.animated-gradient-bg {
+    background: linear-gradient(
+        120deg,
+        #050505 0%,
+        /* Obsidian Black */ #0f0f0f 50%,
+        /* Onyx */ #161616 100% /* Jet Black */
+    );
+    background-size: 400% 400%;
+    animation: gradientShift 25s ease infinite;
+}
+
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* Make sure content is above the background */
+.login-container,
+.app-layout {
+    position: relative;
+    z-index: 2;
+}
+
+/* --- Utility Classes (for later use) --- */
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* --- Glassmorphism Styles --- */
+.glass-card {
+  background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01)); /* Darker gradient */
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(212, 175, 55, 0.3); /* Subtle Gold Border */
+  border-radius: var(--border-radius);
+  padding: var(--card-padding);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); /* Deep depth */
+  color: var(--text-color);
+  z-index: 2; /* Ensure cards are on top */
+  width: 100%;
+  height: auto; /* Let it grow with content */
+  max-height: none; /* Don't cut it off */
+  margin: auto; /* Ensure it stays centered */
+}
+.glass-input,
+.glass-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: var(--text-color);
+    padding: 0.8rem 1rem;
+    transition: all var(--transition-speed) ease;
+    position: relative;
+    z-index: 2;
+}
+
+.glass-input {
+    width: 100%;
+    margin-bottom: 1rem;
+    outline: none;
+}
+
+.glass-input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.glass-input:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 8px rgba(212, 175, 55, 0.2); /* Subtle gold shadow on focus */
+}
+
+.glass-btn {
+    cursor: pointer;
+    display: inline-block;
+    text-align: center;
+    text-decoration: none;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    /* Ensure transition for transform and box-shadow */
+    transition: all var(--transition-speed) ease;
+}
+
+.glass-btn:hover {
+    background: var(--accent-color);
+    color: var(--primary-color);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.4); /* Soft gold glow */
+    transform: translateY(-2px); /* Slightly lift up */
+}
+
+/* --- Glass Card Hover Effect --- */
+.glass-card {
+    transition: all 0.25s ease-out;
+}
+.glass-card:hover {
+    transform: translateY(-5px); /* Lift up more */
+    box-shadow: 0 15px 40px rgba(212, 175, 55, 0.1); /* Gold glow on hover */
+    border-color: rgba(212, 175, 55, 0.6); /* Stronger gold border */
+}
+
+/* --- Centered Layout for Login Page --- */
+.login-container {
+  height: 100vh; /* Fixed height to fill screen */
+  overflow-y: auto; /* Scroll inside container if content is too tall */
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Specific styling for Login/Register cards to avoid breaking dashboard grid */
+.login-card-custom {
+    width: 100%;
+    max-width: 450px;
+    margin: auto; /* Vertically centers when flex parent has space */
+    height: auto;
+    max-height: none;
+    overflow: visible;
+}
+/* --- Page Transition Styles --- */
+body.fade-out {
+    opacity: 0;
+    transition: opacity 0.5s ease-out;
+}
+
+/* --- Premium Heading & Link Effects --- */
+.login-card h1.playfair-display {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(
+        90deg,
+        var(--text-color) 0%,
+        var(--accent-color) 50%,
+        var(--text-color) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    background-size: 200% 100%;
+    animation: shimmer 5s linear infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.login-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+}
+
+.login-footer .text-link {
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: none;
+    margin: 0 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.login-footer .text-link:hover {
+    color: var(--accent-color);
+    transform: scale(1.05);
+    text-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
+}
+
+/* --- Utility Classes --- */
+.gold-glow {
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* --- Modal Styles --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0; /* Start hidden for GSAP */
+}
+
+.modal-content {
+    width: 90%;
+    max-width: 400px;
+    position: relative;
+    transform: scale(0.8); /* Start scaled down for GSAP */
+}
+
+.close-modal-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.close-modal-btn:hover {
+    color: var(--accent-color);
+}
+
+/* --- Dynamic Island Notification Styles --- */
+.dynamic-island {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #000;
+    border-radius: 50px;
+    width: 0;
+    height: 0;
+    opacity: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: #fff;
+    white-space: nowrap;
+    z-index: 999999;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy effect */
+}
+
+.dynamic-island.active {
+    width: auto;
+    height: auto;
+    opacity: 1;
+    padding: 12px 25px;
+    border: 1px solid rgba(212, 175, 55, 0.5); /* Subtle Gold Border */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+}
+
+.dynamic-island i {
+    color: #d4af37; /* Gold Icon */
+    font-size: 1.1rem;
+}
+
+.dynamic-island span {
+    font-weight: 500;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+}
+
+/* --- Profile Dropdown Menu Styles --- */
+.profile-dropdown-container {
+    position: relative;
+    display: inline-block;
+    z-index: 1001; /* Ensure parent container is above dashboard cards */
+}
+
+.user-avatar.profile-toggle {
+    cursor: pointer;
+    transition:
+        transform 0.3s ease,
+        border-color 0.3s ease;
+}
+
+.user-avatar.profile-toggle:hover {
+    transform: scale(1.05);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 120%; /* Slightly below the avatar */
+    right: 0;
+    background: rgba(15, 15, 15, 0.98); /* Increased opacity for glass effect */
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+    border-radius: 12px;
+    padding: 10px;
+    min-width: 200px;
+    z-index: 999999; /* Very high z-index to be on top of everything */
+
+    /* Hidden State */
+    transform: translateY(10px);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.dropdown-menu.show {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: all;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+}
+
+.dropdown-item i {
+    width: 20px;
+    text-align: center;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.5);
+    transition: color 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--accent-color);
+    transform: translateX(5px);
+}
+
+.dropdown-item:hover i {
+    color: var(--accent-color);
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 8px 0;
+}
+
+.dropdown-item.logout-item {
+    color: #ff7675;
+}
+
+.dropdown-item.logout-item i {
+    color: #ff7675;
+}
+
+.dropdown-item.logout-item:hover {
+    background: rgba(255, 118, 117, 0.1);
+    color: #ff7675;
+}
+
+/* --- Premium Gold Dust Particles --- */
+.dust-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5; /* Float ABOVE content (cards) but below sidebar/modals */
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.dust {
+    position: absolute;
+    width: 4px; /* Slightly larger */
+    height: 4px;
+    background: rgba(212, 175, 55, 0.8); /* More visible gold */
+    border-radius: 50%;
+    box-shadow: 0 0 6px rgba(212, 175, 55, 0.8); /* Stronger glow */
+    bottom: -10px; /* Start slightly below */
+    animation: floatUp linear infinite;
+}
+
+@keyframes floatUp {
+    0% {
+        top: 100%;
+        opacity: 0;
+    }
+    20% {
+        top: 80%;
+        opacity: 0.8;
+    }
+    40% {
+        top: 40%;
+        opacity: 0;
+    }
+    100% {
+        top: 0%;
+        opacity: 0;
+    }
+}
+
+/* --- History Page Styles --- */
+.filter-section {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+}
+
+.search-box {
+    position: relative;
+    flex: 1;
+}
+
+.search-box i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.search-box input {
+    padding-left: 2.5rem;
+}
+
+.glass-input.no-margin {
+    margin-bottom: 0;
+}
+
+.date-filters {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.history-table th {
+    background: transparent;
+    color: #aaa; /* Muted grey */
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: left;
+    padding: 1rem;
+    font-weight: 500;
+}
+
+.history-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.history-table tr:last-child td {
+    border-bottom: none;
+}
+
+.history-table tr {
+    transition: background 0.2s;
+}
+
+.history-table tr:hover {
+    background: rgba(212, 175, 55, 0.05); /* Golden highlight on hover */
+}
+
+.text-right {
+    text-align: right;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.status-badge.completed {
+    background: rgba(85, 239, 196, 0.2);
+    color: #55efc4;
+}
+
+.main-header h1 {
+    opacity: 0;
+    animation: fadeUp 0.8s ease-out forwards;
+    animation-delay: 0.6s;
+}
+
+/* Premium Styling for History Table Container */
+.history-table-container {
+    background: rgba(255, 255, 255, 0.02); /* Very subtle */
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 1rem; /* Adjust padding if needed based on glass-card padding */
+    opacity: 0;
+    animation: fadeUp 0.8s ease-out forwards;
+    animation-delay: 0.8s;
+}
+
+.view-all-btn {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 1rem;
+    color: var(--accent-color);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+    border-top: 1px solid var(--glass-border);
+    transition: all 0.3s ease;
+    background: transparent;
+    cursor: pointer;
+}
+
+.view-all-btn:hover {
+    background: rgba(212, 175, 55, 0.05);
+    text-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
+    letter-spacing: 0.5px;
+}
+
+.view-all-btn i {
+    margin-left: 0.5rem;
+    transition: transform 0.3s ease;
+}
+
+.view-all-btn:hover i {
+    transform: translateX(3px);
+}
+
+/* --- Quick Access Styles --- */
+.quick-access-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 1.5rem;
+}
+
+.action-box {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.action-box i {
+    font-size: 2rem;
+    margin-bottom: 0.8rem;
+    color: var(--accent-color);
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.action-box span {
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.action-box:hover {
+    transform: scale(1.05);
+    border: 1px solid var(--accent-color);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+    color: #fff;
+}
+
+.action-box:hover i {
+    transform: translateY(-5px);
+}
+
+/* --- Modal Styles --- */
+.app-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr; /* Default sidebar width */
+    height: 100vh;
+}
+
+.sidebar {
+    background: rgba(10, 10, 10, 0.6);
+    backdrop-filter: blur(15px);
+    border-right: 1px solid var(--glass-border);
+    padding: 0; /* Removed padding so sticky header touches top */
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+    height: 100vh; /* Full viewport height */
+    overflow-y: auto; /* Enable scrolling */
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.sidebar::-webkit-scrollbar {
+    display: none;
+}
+
+.sidebar .logo {
+    font-family: var(--font-secondary);
+    font-size: 1.8rem;
+    text-align: center;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-transform: uppercase;
+    background: linear-gradient(
+        90deg,
+        #ffffff 0%,
+        var(--accent-color) 50%,
+        #ffffff 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    background-size: 200% 100%;
+    animation: shimmer 5s linear infinite;
+    padding: 2rem 1.5rem;
+}
+
+.sidebar .nav-menu {
+    list-style: none;
+    padding: 0rem 1.5rem 2rem 1.5rem; /* Restore padding for menu items */
+    margin: 0;
+}
+
+.sidebar .nav-link {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    margin: 0.5rem 0;
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent; /* Prepare for left border glow */
+}
+
+.sidebar .nav-link span {
+    transition: all 0.3s ease;
+}
+
+.sidebar .nav-link i {
+    width: 25px;
+    margin-right: 1rem;
+    font-size: 1.2rem;
+    text-align: center;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+    background: var(--glass-bg);
+    color: var(--accent-color); /* Text turns gold */
+    border-left: 3px solid var(--accent-color); /* Left border indicator */
+    padding-left: 1.2rem; /* Slight shift right visually via padding or transform */
+    transform: translateX(5px); /* Explicit shift right */
+}
+
+.sidebar .nav-link:hover span,
+.sidebar .nav-link.active span {
+    /* transform handled by parent hover now */
+}
+
+.sidebar .logout {
+    margin-top: auto; /* Pushes logout to the bottom */
+}
+
+.main-content {
+    overflow-y: auto;
+    padding: 3rem;
+    padding-bottom: 100px; /* Added to ensure breathing room at the bottom */
+    height: 100vh; /* Set main content to full viewport height */
+}
+
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    position: relative; /* Create stacking context */
+    z-index: 100; /* Ensure it sits above dashboard cards */
+}
+
+.profile-section {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.notification-bell {
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.7);
+    transition: color 0.3s;
+}
+
+.notification-bell:hover {
+    color: var(--accent-color);
+}
+
+.user-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--glass-bg);
+    border: 2px solid var(--glass-border);
+    display: grid;
+    place-items: center;
+    font-size: 1.5rem;
+}
+
+.main-header h1 {
+    font-family: var(--font-secondary);
+    font-size: 2.8rem;
+    margin-bottom: 0;
+}
+
+.main-header p {
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 0;
+}
+
+.dashboard-cards {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.balance-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.balance-header h2 {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.account-status {
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    background-color: var(--accent-color);
+    color: var(--primary-color);
+}
+
+.balance-amount {
+    font-family: var(--font-secondary);
+    font-size: 3.5rem;
+    font-weight: 400; /* Lighter for elegance */
+    color: var(--accent-color);
+    letter-spacing: 1px;
+}
+
+.gold-icon-glow {
+    color: var(--accent-color);
+    text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+}
+
+.account-type-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.account-type-info .accent-icon {
+    font-size: 2rem;
+    color: var(--accent-color);
+}
+
+.account-type-info span {
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+
+.activity-card h2, .quick-access-card h2, .account-type-card h2 {
+    font-family: var(--font-primary); /* Use primary font for labels */
+    font-size: 0.75rem;
+    font-weight: 500; /* Adjust weight if needed */
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--glass-border);
+    padding-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #aaa;
+}
+
+.activity-list .activity-item {
+    display: grid;
+    grid-template-columns: 40px 1fr auto;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.activity-list .activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-item .icon {
+    font-size: 1.2rem;
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--glass-bg);
+}
+.activity-item .icon.deposit {
+    color: #55efc4;
+} /* Green */
+.activity-item .icon.withdrawal {
+    color: #ff7675;
+} /* Red */
+.activity-item .icon.transfer {
+    color: #74b9ff;
+} /* Blue */
+
+.activity-item .activity-info h3 {
+    font-size: 1rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+.activity-item .activity-info p {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0;
+}
+
+.activity-item .activity-amount {
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-align: right;
+}
+.activity-item .activity-amount.deposit {
+    color: #55efc4;
+}
+.activity-item .activity-amount.withdrawal {
+    color: #ff7675;
+}
+.activity-item .activity-amount.transfer {
+    color: var(--text-color);
+}
+
+.history-table td.amount {
+    font-family: var(--font-secondary);
+}
+
+/* --- Responsive Styles --- */
+
+/* Default Hamburger Button (Hidden on Desktop) */
+.hamburger-btn {
+    display: none;
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    font-size: 1.5rem;
+    cursor: pointer;
+    margin-right: 1rem;
+    transition: color 0.3s ease;
+}
+
+.hamburger-btn:hover {
+    color: var(--accent-color);
+}
+
+/* Tablet & Mobile Styles */
+@media (max-width: 1024px) {
+    .hamburger-btn {
+        display: block;
+    }
+
+    .sidebar {
+        position: fixed;
+        left: -260px; /* Hide sidebar off-screen */
+        top: 0;
+        height: 100vh;
+        width: 260px;
+        transition: left 0.3s ease;
+        box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
+    }
+
+    .sidebar.is-active {
+        left: 0; /* Show sidebar */
+    }
+
+    .app-layout {
+        display: block; /* Stack layout instead of grid */
+    }
+
+    .main-content {
+        margin-left: 0; /* Full width content */
+        padding: 2rem;
+        padding-top: 80px; /* Add padding to prevent content from hiding behind sticky header */
+    }
+    
+    .top-bar {
+        display: flex; /* Ensure flex layout */
+        justify-content: space-between; /* Space out hamburger and profile */
+        align-items: center;
+        position: sticky;
+        top: 0;
+        background: rgba(10, 10, 10, 0.8); /* Glass background for header on mobile */
+        backdrop-filter: blur(10px);
+        padding: 1rem 2rem; /* Add padding inside sticky header */
+        z-index: 90; /* Below sidebar but above content */
+        border-bottom: 1px solid var(--glass-border);
+        width: 100%; /* Ensure it spans full width */
+    }
+
+    /* Remove default margin-bottom from .top-bar in mobile view */
+    .top-bar + .main-header {
+        margin-top: 2rem; /* Restore spacing below sticky header */
+    }
+}
+
+/* Mobile Layout */
+@media (max-width: 768px) {
+    .dashboard-cards {
+        grid-template-columns: 1fr; /* Stack cards vertically */
+    }
+
+    .quick-access-grid {
+        grid-template-columns: repeat(2, 1fr); /* 2 columns for quick access */
+    }
+
+    .balance-amount {
+        font-size: 2.5rem; /* Smaller font for mobile */
+    }
+
+    .history-table-container {
+        overflow-x: auto; /* Enable horizontal scroll for table */
+    }
+    
+    .history-table {
+        min-width: 600px; /* Ensure table doesn't squish too much */
+    }
+}

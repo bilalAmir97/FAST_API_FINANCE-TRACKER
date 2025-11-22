@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Onyx Private Limited - Login</title>
+    <!-- Favicon (optional, can add later) -->
+    <link rel="icon" type="image/png" href="assets/images/favicon.png">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="login-gradient-bg">
+    <!-- The particle container is now created and appended by animations.js -->
+
+    <div class="login-container">
+        <div class="glass-card login-card login-card-custom">
+            <h1 class="playfair-display">Welcome to Onyx Private Limited Bank</h1>
+            <p class="inter-font">Securely log in to your account</p>
+            
+            <form id="loginForm">
+                <div class="input-group">
+                    <label for="username" class="sr-only">Username</label>
+                    <input type="text" id="username" class="glass-input" placeholder="Username" required>
+                </div>
+                <div class="input-group">
+                    <label for="password" class="sr-only">PIN (4-digits)</label>
+                    <input type="password" id="password" class="glass-input" placeholder="PIN (4-digits)" maxlength="4" pattern="\d{4}" title="Please enter a 4-digit PIN" required>
+                </div>
+                <button type="submit" class="glass-btn">Login</button>
+            </form>
+            
+            <div class="login-footer inter-font">
+                <a href="#" class="text-link">Forgot PIN?</a>
+                <a href="register.html" class="text-link">Register</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- GSAP CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <!-- Main JavaScript for interactions -->
+    <script src="assets/js/main.js"></script>
+    <!-- Animations JavaScript for GSAP specific animations -->
+    <script src="assets/js/animations.js"></script>
+</body>
+</html>

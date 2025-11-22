@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History - Onyx Private Limited</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="animated-gradient-bg">
+
+    <div class="app-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-gem"></i> ONYX
+            </div>
+            <nav class="nav-menu">
+                <a href="dashboard.html" class="nav-link"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
+                <!-- No modal triggers on history page sidebar for simplicity, just links -->
+                <a href="transfers.html" class="nav-link"><i class="fas fa-exchange-alt"></i> <span>Transfers</span></a>
+                <a href="#" class="nav-link"><i class="fas fa-credit-card"></i> <span>Cards</span></a>
+                <a href="history.html" class="nav-link active"><i class="fas fa-history"></i> <span>History</span></a>
+                <a href="#" class="nav-link"><i class="fas fa-cog"></i> <span>Settings</span></a>
+            </nav>
+            <a href="index.html" class="nav-link logout">
+                <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+            </a>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="top-bar">
+                <button class="hamburger-btn"><i class="fas fa-bars"></i></button>
+                <div class="main-header">
+                    <h1>Transaction History</h1>
+                    <p>View and filter all your past transactions.</p>
+                </div>
+                <div class="profile-section">
+                    <i class="fas fa-bell notification-bell"></i>
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Filter Section -->
+            <section class="glass-card filter-section">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="history-search" class="glass-input no-margin" placeholder="Search by type or user...">
+                </div>
+                <div class="date-filters">
+                    <input type="date" class="glass-input no-margin">
+                    <span style="color: var(--text-color);">-</span>
+                    <input type="date" class="glass-input no-margin">
+                </div>
+                <button class="glass-btn" id="export-btn"><i class="fas fa-download"></i> Export</button>
+            </section>
+
+            <!-- History Table -->
+            <section class="glass-card history-table-container">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Counterparty</th>
+                            <th>Status</th>
+                            <th class="text-right">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-table-body">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- GSAP CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <!-- Main JavaScript for interactions -->
+    <script src="assets/js/main.js"></script>
+    <!-- Animations JavaScript for GSAP specific animations -->
+    <script src="assets/js/animations.js"></script>
+</body>
+</html>

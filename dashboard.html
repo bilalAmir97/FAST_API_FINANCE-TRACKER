@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Onyx Private Limited</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="animated-gradient-bg">
+
+    <div class="app-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-gem"></i> ONYX
+            </div>
+            <nav class="nav-menu">
+                <a href="dashboard.html" class="nav-link active"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
+                <a href="#" class="nav-link" id="nav-deposit"><i class="fas fa-arrow-down"></i> <span>Deposit</span></a>
+                <a href="#" class="nav-link" id="nav-withdraw"><i class="fas fa-arrow-up"></i> <span>Withdraw</span></a>
+                <a href="transfers.html" class="nav-link"><i class="fas fa-exchange-alt"></i> <span>Transfers</span></a>
+                <a href="#" class="nav-link"><i class="fas fa-credit-card"></i> <span>Cards</span></a>
+                <a href="history.html" class="nav-link"><i class="fas fa-history"></i> <span>History</span></a>
+                <a href="#" class="nav-link"><i class="fas fa-cog"></i> <span>Settings</span></a>
+            </nav>
+            <a href="index.html" class="nav-link logout">
+                <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+            </a>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar with Profile -->
+            <header class="top-bar">
+                <button class="hamburger-btn"><i class="fas fa-bars"></i></button>
+                <div class="main-header">
+                    <h1>Welcome back, <span id="username-display"></span></h1>
+                    <p>Here is your financial overview for today.</p>
+                </div>
+                <div class="profile-section">
+                    <i class="fas fa-bell notification-bell"></i>
+                    <div class="profile-dropdown-container">
+                        <div class="user-avatar profile-toggle">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="dropdown-menu" id="profile-dropdown">
+                            <a href="#" class="dropdown-item"><i class="fas fa-user"></i> Profile</a>
+                            <a href="#" class="dropdown-item"><i class="fas fa-cog"></i> Settings</a>
+                            <a href="#" class="dropdown-item"><i class="fas fa-question-circle"></i> Help Center</a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item logout-item" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Dashboard Cards -->
+            <section class="dashboard-cards">
+                <!-- Balance Card -->
+                <div class="glass-card balance-card">
+                    <div class="balance-header">
+                        <h2>Total Balance</h2>
+                        <span class="account-status" id="account-status"></span>
+                    </div>
+                    <p class="balance-amount" id="balance-amount">$0.00</p>
+                </div>
+
+                <!-- Account Type Card -->
+                <div class="glass-card account-type-card">
+                    <h2>Account Type</h2>
+                    <div class="account-type-info">
+                        <i class="fas fa-crown accent-icon gold-icon-glow"></i>
+                        <span id="account-type"></span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Access Section -->
+            <section class="glass-card quick-access-card" style="margin-bottom: 2rem;">
+                <h2 style="margin-bottom: 1.5rem; font-family: var(--font-secondary);">Quick Access</h2>
+                <div class="quick-access-grid">
+                    <div class="action-box" id="qa-deposit">
+                        <i class="fas fa-piggy-bank"></i>
+                        <span>Deposit</span>
+                    </div>
+                    <div class="action-box" id="qa-withdraw">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span>Withdraw</span>
+                    </div>
+                    <div class="action-box" id="qa-transfer">
+                        <i class="fas fa-paper-plane"></i>
+                        <span>Transfer</span>
+                    </div>
+                    <div class="action-box" id="qa-cards">
+                        <i class="fas fa-credit-card"></i>
+                        <span>Cards</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recent Activity Section -->
+            <section class="glass-card activity-card">
+                <h2>Recent Activity</h2>
+                <div class="activity-list" id="activity-list">
+                    <!-- JS will populate this section -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Transaction Modal -->
+    <div id="transaction-modal" class="modal-overlay hidden">
+        <div class="glass-card modal-content">
+            <button class="close-modal-btn">&times;</button>
+            <h2 id="modal-title">Transaction</h2>
+            <form id="transaction-form">
+                <div class="input-group hidden" id="recipient-group">
+                    <label for="recipient-username" class="sr-only">To Username</label>
+                    <input type="text" id="recipient-username" class="glass-input" placeholder="Recipient Username">
+                </div>
+                <div class="input-group">
+                    <label for="trans-amount" class="sr-only">Amount</label>
+                    <input type="number" id="trans-amount" class="glass-input" placeholder="Amount" min="0.01" step="0.01" required>
+                </div>
+                <!-- Simple PIN verification simulation if needed, though backend might not require it for basic deposit/withdraw in this demo context, we'll add a generic 'confirm' action -->
+                <button type="submit" class="glass-btn" id="modal-submit-btn">Confirm</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- GSAP CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <!-- Main JavaScript for interactions -->
+    <script src="assets/js/main.js"></script>
+    <!-- Animations JavaScript for GSAP specific animations -->
+    <script src="assets/js/animations.js"></script>
+</body>
+</html>
