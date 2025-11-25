@@ -144,32 +144,6 @@ Open a second browser window in Incognito mode, create another account, and test
 
 ---
 
-## 📂 Project Architecture
-
-onyx-private/
-│
-├── assets/
-│ ├── css/
-│ │ └── style.css # Global styles, themes, and responsive design
-│ ├── js/
-│ │ ├── main.js # Core application logic and API integration
-│ │ └── animations.js # GSAP animations and particle effects
-│ └── images/ # Static assets and visual resources
-│
-├── index.html                 # Login gateway (Root level)
-├── register.html              # User registration interface
-├── dashboard.html             # Main banking hub
-├── history.html               # Transaction history view
-│
-├── main.py # FastAPI application entry point
-├── routes.py # RESTful API endpoints
-├── models.py # Pydantic data models
-├── config.py # Application configuration
-├── requirements.txt # Python dependencies
-└── README.md # Project documentation
-
----
-
 ## 🐛 Troubleshooting
 
 **1. Frontend Not Loading** - Clear cache with Ctrl+Shift+R
