@@ -1,7 +1,9 @@
 // assets/js/main.js - Main JavaScript file for handling interactions and API calls.
 
-// API Base URL
-const API_BASE_URL = 'http://127.0.0.1:8000/api';
+// API Base URL - Using relative path to avoid CORS/Mixed Content issues
+const API_BASE_URL = '/api';
+
+console.log('Main.js loaded. API_BASE_URL:', API_BASE_URL);
 
 document.addEventListener('DOMContentLoaded', () => {
     
@@ -207,14 +209,21 @@ function handleRegisterPage() {
 
             if (response.ok) {
                 alert('Account Created! Please login.');
-                window.location.href = 'index.html';
+                window.location.href = '/';
             } else {
-                const errorData = await response.json();
-                alert(`Registration failed: ${errorData.detail}`);
+                // Try to parse JSON, but handle cases where it fails (e.g., 500 HTML error)
+                try {
+                    const errorData = await response.json();
+                    alert(`Registration failed: ${errorData.detail || JSON.stringify(errorData)}`);
+                } catch (parseError) {
+                    const textError = await response.text();
+                    console.error('Non-JSON error response:', textError);
+                    alert(`Registration failed (Server Error): ${response.status} ${response.statusText}`);
+                }
             }
         } catch (error) {
             console.error('Registration error:', error);
-            alert('An error occurred. Please check your connection.');
+            alert(`An error occurred: ${error.message}. Please check your connection.`);
         }
     });
 }
@@ -254,7 +263,7 @@ function handleLoginPage() {
                 // Animation and Redirect
                 document.body.classList.add('fade-out');
                 setTimeout(() => {
-                    window.location.href = 'dashboard.html';
+                    window.location.href = '/dashboard';
                 }, 500);
             } else {
                 const errorData = await response.json();
@@ -274,7 +283,7 @@ function handleDashboardPage() {
     const username = localStorage.getItem('username');
     if (!username) {
         alert('Please log in first.');
-        window.location.href = 'index.html';
+        window.location.href = '/';
         return;
     }
 
@@ -327,8 +336,8 @@ function handleDashboardPage() {
         alert("Cards feature coming soon!");
     });
 
-    // Sidebar Transfer Link (assuming you add an ID or selector for it)
-    const transferLink = document.querySelector('a[href="transfers.html"]'); // Currently it points to a page, we hijack it for modal
+    // Sidebar Transfer Link
+    const transferLink = document.getElementById('nav-transfers');
     if (transferLink) {
         transferLink.addEventListener('click', (e) => { 
             e.preventDefault(); 
@@ -432,7 +441,7 @@ function handleDashboardPage() {
                 // Animation and Redirect
                 document.body.classList.add('fade-out');
                 setTimeout(() => {
-                    window.location.href = 'index.html';
+                    window.location.href = '/';
                 }, 500);
             });
         }
@@ -547,7 +556,7 @@ function renderDashboard(username, balance, transactions) {
         // 3. "View All" Logic
         if (transactions.length > 5) {
             const viewAllBtn = document.createElement('a');
-            viewAllBtn.href = 'history.html';
+            viewAllBtn.href = '/history';
             viewAllBtn.className = 'view-all-btn';
             viewAllBtn.innerHTML = 'View Full Activity <i class="fas fa-chevron-right"></i>';
             activityList.appendChild(viewAllBtn);

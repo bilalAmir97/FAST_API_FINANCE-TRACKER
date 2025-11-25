@@ -6,6 +6,9 @@ from fastapi import FastAPI  # The main FastAPI class
 from fastapi.middleware.cors import CORSMiddleware  # Middleware for handling Cross-Origin Resource Sharing
 import logging  # Library for logging events and errors
 
+from fastapi.staticfiles import StaticFiles  # For serving static files like CSS and JS
+from fastapi.responses import FileResponse  # For serving HTML files
+
 # Import the router from our routes.py file
 from routes import router as api_router
 
@@ -57,19 +60,41 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all request headers
 )
 
+# --- Mount Static Files ---
+# This allows us to serve files from the "assets" directory at the "/assets" URL path.
+app.mount("/assets", StaticFiles(directory="assets"), name="assets")
+
 # --- Include API Routes ---
 # This line includes all the endpoints defined in our routes.py file into the main app.
 # The 'prefix' adds '/api' to the beginning of all routes from that file.
 app.include_router(api_router, prefix="/api", tags=["Bank Operations"])
 
-# --- Root Endpoint ---
-# This is the main landing page of our API.
-@app.get("/", tags=["Root"])
-async def read_root():
-    # Log that someone accessed this endpoint
-    logger.info("Root endpoint accessed.")
-    # Return a welcome message
-    return {"message": "Welcome to the Multi-User Bank API. Visit /docs for documentation."}
+# --- Frontend Routes ---
+# These endpoints serve the HTML files for our frontend application.
+
+@app.get("/", tags=["Frontend"])
+async def read_index():
+    """Serve the login page (index.html)"""
+    logger.info("Serving index.html")
+    return FileResponse("index.html")
+
+@app.get("/register", tags=["Frontend"])
+async def read_register():
+    """Serve the registration page"""
+    logger.info("Serving register.html")
+    return FileResponse("register.html")
+
+@app.get("/dashboard", tags=["Frontend"])
+async def read_dashboard():
+    """Serve the dashboard page"""
+    logger.info("Serving dashboard.html")
+    return FileResponse("dashboard.html")
+
+@app.get("/history", tags=["Frontend"])
+async def read_history():
+    """Serve the transaction history page"""
+    logger.info("Serving history.html")
+    return FileResponse("history.html")
 
 # --- Uvicorn Server ---
 # This block of code runs only when you execute this script directly (e.g., `python main.py`).
