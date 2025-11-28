@@ -12,10 +12,15 @@ from models import (
     TransferRequest,
     CreateUserRequest,
     UserBalanceResponse,
+    TransactionAnalysisRequest,
+    TransactionAnalysisResponse,
 )
 # Import our "database" from config.py
 from config import user_accounts, transaction_history, user_details
 from datetime import datetime
+
+# Import AI service for transaction analysis
+from ai_service import analyze_transaction, analyze_spending_overview
 
 # Get a logger instance for this file. It will inherit the configuration from main.py.
 logger = logging.getLogger(__name__)
@@ -67,21 +72,36 @@ async def deposit(request: DepositWithdrawRequest):
     user_accounts[request.username] += request.amount
     
     # Log the transaction to our history
-    transaction_history.append({
+    deposit_record = {
         "type": "deposit",
         "username": request.username,
         "amount": request.amount,
-        "timestamp": datetime.now().isoformat()
-    })
+        "timestamp": datetime.now().isoformat(),
+        "note": request.note,
+    }
+    transaction_history.append(deposit_record)
+
+    # Optionally run AI analysis on the note
+    analysis = None
+    if request.note:
+        try:
+            analysis = await analyze_transaction(request.note)
+            if analysis and "category" in analysis:
+                deposit_record["category"] = analysis["category"]
+        except Exception as e:  # Do not fail the transaction on AI issues
+            logger.exception("AI analysis failed for deposit: %s", e)
 
     # Log the successful transaction.
     logger.info(f"Deposited {request.amount} to {request.username}. New balance: {user_accounts[request.username]}")
     # Return a success message with the new balance.
-    return {
+    response_body = {
         "message": "Deposit successful",
         "username": request.username,
-        "new_balance": user_accounts[request.username]
+        "new_balance": user_accounts[request.username],
     }
+    if analysis:
+        response_body["analysis"] = analysis
+    return response_body
 
 @router.post("/withdraw", summary="Withdraw funds from a user's account")
 async def withdraw(request: DepositWithdrawRequest):
@@ -104,20 +124,35 @@ async def withdraw(request: DepositWithdrawRequest):
     user_accounts[request.username] -= request.amount
 
     # Log the transaction
-    transaction_history.append({
+    withdrawal_record = {
         "type": "withdrawal",
         "username": request.username,
         "amount": -request.amount, # Store as a negative value
-        "timestamp": datetime.now().isoformat()
-    })
+        "timestamp": datetime.now().isoformat(),
+        "note": request.note,
+    }
+    transaction_history.append(withdrawal_record)
+
+    # Optionally run AI analysis on the note
+    analysis = None
+    if request.note:
+        try:
+            analysis = await analyze_transaction(request.note)
+            if analysis and "category" in analysis:
+                withdrawal_record["category"] = analysis["category"]
+        except Exception as e:  # Do not fail the transaction on AI issues
+            logger.exception("AI analysis failed for withdrawal: %s", e)
 
     logger.info(f"Withdrew {request.amount} from {request.username}. New balance: {user_accounts[request.username]}")
     # Return a success message.
-    return {
+    response_body = {
         "message": "Withdrawal successful",
         "username": request.username,
-        "new_balance": user_accounts[request.username]
+        "new_balance": user_accounts[request.username],
     }
+    if analysis:
+        response_body["analysis"] = analysis
+    return response_body
 
 # The 'response_model' tells FastAPI to validate the outgoing response against our Pydantic model.
 # This ensures the response format is always correct and documents it in the API docs.
@@ -159,32 +194,50 @@ async def transfer(request: TransferRequest):
     
     # Log the transaction for both parties
     timestamp = datetime.now().isoformat()
-    transaction_history.append({
+    transfer_out_record = {
         "type": "transfer_out",
         "username": request.from_user,
         "amount": -request.amount,
         "to_user": request.to_user,
-        "timestamp": timestamp
-    })
-    transaction_history.append({
+        "timestamp": timestamp,
+        "note": request.note,
+    }
+    transfer_in_record = {
         "type": "transfer_in",
         "username": request.to_user,
         "amount": request.amount,
         "from_user": request.from_user,
-        "timestamp": timestamp
-    })
+        "timestamp": timestamp,
+        "note": request.note,
+    }
+    transaction_history.append(transfer_out_record)
+    transaction_history.append(transfer_in_record)
+
+    # Optionally run AI analysis on the note
+    analysis = None
+    if request.note:
+        try:
+            analysis = await analyze_transaction(request.note)
+            if analysis and "category" in analysis:
+                transfer_out_record["category"] = analysis["category"]
+                transfer_in_record["category"] = analysis["category"]
+        except Exception as e:  # Do not fail the transaction on AI issues
+            logger.exception("AI analysis failed for transfer: %s", e)
 
     logger.info(f"Transferred {request.amount} from {request.from_user} to {request.to_user}.")
     
     # Return a detailed success message.
-    return {
+    response_body = {
         "message": "Transfer successful",
         "transaction": vars(request),
         "updated_balances": {
             request.from_user: user_accounts[request.from_user],
             request.to_user: user_accounts[request.to_user]
-        }
+        },
     }
+    if analysis:
+        response_body["analysis"] = analysis
+    return response_body
 
 # The '-> Dict[str, float]' is a type hint indicating the function returns a dictionary
 # with string keys and float values.
@@ -201,6 +254,53 @@ async def get_transactions(username: str):
     
     # Return the most recent 10 transactions (assuming append order is chronological)
     return {"transactions": user_txs[-10:][::-1]} # Reverse to show newest first
+
+
+@router.get("/spending-summary/{username}", summary="Get AI spending summary based on dominant category")
+async def get_spending_summary(username: str):
+    """Compute the user's dominant spending category and return a one-line AI tip.
+
+    Only considers outflows (withdrawals and transfers out) that have an attached category.
+    """
+    if username not in user_accounts:
+        raise HTTPException(status_code=404, detail=f"User '{username}' not found.")
+
+    # Collect relevant transactions
+    user_txs = [tx for tx in transaction_history if tx.get("username") == username]
+
+    category_totals: Dict[str, float] = {}
+    for tx in user_txs:
+        category = tx.get("category")
+        amount = tx.get("amount", 0.0)
+        # We treat negative amounts as spending (withdrawals, transfer_out)
+        if not category or amount >= 0:
+            continue
+        spend = abs(float(amount))
+        category_totals[category] = category_totals.get(category, 0.0) + spend
+
+    if not category_totals:
+        return {
+            "has_data": False,
+            "category": None,
+            "total": 0.0,
+            "tip": "No spending insights available yet.",
+        }
+
+    # Find dominant category by total spend
+    top_category, top_total = max(category_totals.items(), key=lambda kv: kv[1])
+
+    tip = None
+    try:
+        tip = await analyze_spending_overview(top_category, top_total)
+    except Exception as e:  # Do not fail the request on AI issues
+        logger.exception("AI spending summary failed for %s: %s", username, e)
+
+    return {
+        "has_data": True,
+        "category": top_category,
+        "total": top_total,
+        "tip": tip or f"Your highest spending category is {top_category}.",
+    }
 
 @router.get("/users", summary="Get all users and balances")
 async def get_users() -> Dict[str, float]:
@@ -237,3 +337,23 @@ async def create_user(request: CreateUserRequest):
         "message": "User created successfully",
         "username": request.username
     }
+
+
+@router.post("/analyze-transaction", response_model=TransactionAnalysisResponse, summary="AI analyze a transaction note")
+async def analyze_transaction_endpoint(request: TransactionAnalysisRequest) -> TransactionAnalysisResponse:
+    """Run the Categorizer -> Analyzer AI workflow on a transaction note.
+
+    - **note**: Free-text description of the transaction (e.g., "Pizza with friends").
+    - Returns: detected category and a short savings tip.
+    """
+    try:
+        result = await analyze_transaction(request.note)
+    except RuntimeError as e:
+        # Typically missing API key or configuration
+        logger.error("AI analysis configuration error: %s", e)
+        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:  # pragma: no cover - defensive
+        logger.exception("AI analysis failed")
+        raise HTTPException(status_code=500, detail="AI analysis failed") from e
+
+    return TransactionAnalysisResponse(**result)

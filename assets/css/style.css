@@ -525,6 +525,48 @@ body.fade-out {
     border-bottom: 1px solid var(--glass-border);
 }
 
+.spending-summary-text {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.history-note-cell {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.history-note-cell .note-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ai-tip-btn {
+    background: rgba(212, 175, 55, 0.1);
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #d4af37;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.ai-tip-btn i {
+    font-size: 0.9rem;
+}
+
+.ai-tip-btn:hover {
+    background: rgba(212, 175, 55, 0.25);
+    box-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
+}
+
 .history-table tr:last-child td {
     border-bottom: none;
 }
@@ -551,6 +593,16 @@ body.fade-out {
 .status-badge.completed {
     background: rgba(85, 239, 196, 0.2);
     color: #55efc4;
+}
+
+.history-category-badge {
+    display: inline-block;
+    margin-top: 0.25rem;
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    background: rgba(212, 175, 55, 0.15);
+    color: #d4af37;
 }
 
 .main-header h1 {

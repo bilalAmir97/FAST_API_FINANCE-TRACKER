@@ -26,6 +26,8 @@ class DepositWithdrawRequest(BaseModel):
     # Expect an 'amount' field that is a float (a number with decimals).
     # 'gt=0' means the amount must be greater than 0.
     amount: float = Field(..., gt=0, description="Amount must be a positive number")
+    # Optional user-provided note that can be used for AI analysis.
+    note: str | None = Field(default=None, description="Optional note describing the transaction")
 
 class TransferRequest(BaseModel):
     """ Pydantic model for the /transfer request body. """
@@ -35,6 +37,8 @@ class TransferRequest(BaseModel):
     to_user: str
     # The amount to transfer, which must be a positive number.
     amount: float = Field(..., gt=0, description="Transfer amount must be positive")
+    # Optional user-provided note that can be used for AI analysis.
+    note: str | None = Field(default=None, description="Optional note describing the transfer")
 
 class CreateUserRequest(BaseModel):
     """ Pydantic model for the /create-user request body. """
@@ -52,3 +56,16 @@ class UserBalanceResponse(BaseModel):
     username: str
     # The current balance of the account.
     balance: float
+
+
+class TransactionAnalysisRequest(BaseModel):
+    """Request body for the /analyze-transaction endpoint."""
+    # Free-text transaction note, e.g., "Pizza with friends" or "Uber to airport".
+    note: str = Field(..., min_length=1, description="Free-text description of the transaction")
+
+
+class TransactionAnalysisResponse(BaseModel):
+    """Response body for the /analyze-transaction endpoint."""
+    note: str
+    category: str
+    tip: str

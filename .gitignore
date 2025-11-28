@@ -14,7 +14,7 @@ htmlcov/
 .venv
 .python-version
 uv.lock
-
+.env
 # Log files
 *.log
 
@@ -23,4 +23,4 @@ uv.lock
 
 # Gemini specific files
 GEMINI.md
-
+WARP.md

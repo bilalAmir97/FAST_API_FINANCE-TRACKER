@@ -63,6 +63,9 @@ async function handleHistoryPage() {
     const display = document.getElementById('username-display');
     if (display) display.textContent = username;
 
+    // Fetch and show AI spending summary for history
+    fetchSpendingSummary(username, 'history');
+
     try {
         console.log(`Fetching history for: ${username}`);
         const response = await fetch(`${API_BASE_URL}/transactions/${username}`);
@@ -94,6 +97,11 @@ async function handleHistoryPage() {
                 let counterparty = '-';
                 let typeLabel = tx.type || 'Unknown';
                 let statusBadge = '<span class="status-badge completed">Completed</span>';
+                const hasNote = !!tx.note;
+                const noteText = hasNote ? tx.note : '-';
+                const categoryBadge = tx.category
+                    ? `<div class="history-category-badge">${tx.category}</div>`
+                    : '';
 
                 // Determine styling based on transaction type
                 if (tx.type === 'deposit' || tx.type === 'transfer_in') {
@@ -123,10 +131,23 @@ async function handleHistoryPage() {
                 // Apply colors inline or via class in CSS (assuming .deposit/.withdrawal classes exist)
                 const amountColor = amountClass === 'deposit' ? '#55efc4' : '#ff7675';
 
+                const noteCellHtml = hasNote
+                    ? `<div class="history-note-cell">
+                            <span class="note-text">${noteText}</span>
+                            <button class="ai-tip-btn" data-note="${noteText.replace(/"/g, '&quot;')}">
+                                <i class="fas fa-robot"></i>
+                            </button>
+                       </div>`
+                    : noteText;
+
                 row.innerHTML = `
                     <td>${dateStr}</td>
-                    <td style="text-transform: capitalize;">${typeLabel}</td>
+                    <td style="text-transform: capitalize;">
+                        ${typeLabel}
+                        ${categoryBadge}
+                    </td>
                     <td>${counterparty}</td>
+                    <td>${noteCellHtml}</td>
                     <td>${statusBadge}</td>
                     <td class="text-right" style="color: ${amountColor}; font-weight: bold;">
                         ${amountClass === 'deposit' ? '+' : '-'}$${Math.abs(tx.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -158,9 +179,61 @@ async function handleHistoryPage() {
                 const filtered = transactions.filter(tx => 
                     (tx.type && tx.type.toLowerCase().includes(term)) || 
                     (tx.to_user && tx.to_user.toLowerCase().includes(term)) ||
-                    (tx.from_user && tx.from_user.toLowerCase().includes(term))
+                    (tx.from_user && tx.from_user.toLowerCase().includes(term)) ||
+                    (tx.note && tx.note.toLowerCase().includes(term)) ||
+                    (tx.category && tx.category.toLowerCase().includes(term))
                 );
                 renderTable(filtered);
+            });
+        }
+
+        // Delegate click handler for per-row AI tip buttons
+        if (tableBody) {
+            tableBody.addEventListener('click', async (e) => {
+                const btn = e.target.closest('.ai-tip-btn');
+                if (!btn) return;
+
+                const noteForAi = btn.getAttribute('data-note');
+                if (!noteForAi) return;
+
+                try {
+                    const aiRes = await fetch(`${API_BASE_URL}/analyze-transaction`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ note: noteForAi }),
+                    });
+
+                    const aiData = await aiRes.json();
+
+                    if (!aiRes.ok) {
+                        const msg = aiData.detail || 'AI analysis failed';
+                        if (window.showDynamicIsland) {
+                            window.showDynamicIsland(msg, 'error');
+                        } else {
+                            alert(msg);
+                        }
+                        return;
+                    }
+
+                    const categoryMsg = aiData.category ? `AI category: ${aiData.category}` : 'AI analysis';
+                    const tipMsg = aiData.tip || 'No tip available.';
+
+                    if (window.showDynamicIsland) {
+                        window.showDynamicIsland(categoryMsg, 'success');
+                    }
+                    if (window.showToast) {
+                        window.showToast(`Tip: ${tipMsg}`, 'success');
+                    } else {
+                        alert(`${categoryMsg}\n${tipMsg}`);
+                    }
+                } catch (error) {
+                    console.error('AI tip error:', error);
+                    if (window.showDynamicIsland) {
+                        window.showDynamicIsland('AI analysis failed', 'error');
+                    } else {
+                        alert('AI analysis failed');
+                    }
+                }
             });
         }
 
@@ -289,6 +362,7 @@ function handleDashboardPage() {
 
     // --- Initial Data Fetch ---
     fetchDashboardData(username);
+    fetchSpendingSummary(username, 'dashboard');
     
     // --- Initialize Gold Dust Particles ---
     createGoldDust();
@@ -300,6 +374,8 @@ function handleDashboardPage() {
     const transactionForm = document.getElementById('transaction-form');
     const recipientGroup = document.getElementById('recipient-group');
     const recipientInput = document.getElementById('recipient-username');
+    const noteInput = document.getElementById('trans-note');
+    const aiAnalyzeBtn = document.getElementById('ai-analyze-latest');
     let currentTransactionType = null;
 
     function openModal(type) {
@@ -345,6 +421,95 @@ function handleDashboardPage() {
         });
     }
 
+    // AI analysis button (analyzes latest transaction)
+    if (aiAnalyzeBtn) {
+        aiAnalyzeBtn.addEventListener('click', async () => {
+            try {
+                const txRes = await fetch(`${API_BASE_URL}/transactions/${username}`);
+                if (!txRes.ok) {
+                    throw new Error('Failed to fetch transactions');
+                }
+                const txData = await txRes.json();
+
+                let transactions = [];
+                if (Array.isArray(txData)) {
+                    transactions = txData;
+                } else if (txData.transactions && Array.isArray(txData.transactions)) {
+                    transactions = txData.transactions;
+                }
+
+                if (!transactions.length) {
+                    if (window.showDynamicIsland) {
+                        window.showDynamicIsland('No transactions to analyze yet', 'error');
+                    } else {
+                        alert('No transactions to analyze yet');
+                    }
+                    return;
+                }
+
+                // Latest transaction is first if backend already returns newest-first;
+                // otherwise sort by timestamp just in case.
+                const sorted = [...transactions].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                const latest = sorted[0];
+
+                // Build a simple human-readable note from transaction data
+                let note;
+                const amountAbs = Math.abs(latest.amount || 0).toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                });
+                if (latest.type === 'deposit') {
+                    note = `Deposit of $${amountAbs}`;
+                } else if (latest.type === 'withdrawal') {
+                    note = `Withdrawal of $${amountAbs}`;
+                } else if (latest.type === 'transfer_out') {
+                    note = `Transfer of $${amountAbs} to ${latest.to_user || 'another user'}`;
+                } else if (latest.type === 'transfer_in') {
+                    note = `Received $${amountAbs} from ${latest.from_user || 'another user'}`;
+                } else {
+                    note = `Transaction of $${amountAbs}`;
+                }
+
+                const aiRes = await fetch(`${API_BASE_URL}/analyze-transaction`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ note }),
+                });
+
+                const aiData = await aiRes.json();
+
+                if (!aiRes.ok) {
+                    const msg = aiData.detail || 'AI analysis failed';
+                    if (window.showDynamicIsland) {
+                        window.showDynamicIsland(msg, 'error');
+                    } else {
+                        alert(msg);
+                    }
+                    return;
+                }
+
+                const categoryMsg = `AI category: ${aiData.category}`;
+                const tipMsg = aiData.tip || 'No tip available.';
+
+                if (window.showDynamicIsland) {
+                    window.showDynamicIsland(categoryMsg, 'success');
+                }
+                if (window.showToast) {
+                    window.showToast(`Tip: ${tipMsg}`, 'success');
+                } else {
+                    alert(`${categoryMsg}\n${tipMsg}`);
+                }
+            } catch (error) {
+                console.error('AI analysis error:', error);
+                if (window.showDynamicIsland) {
+                    window.showDynamicIsland('AI analysis failed', 'error');
+                } else {
+                    alert('AI analysis failed');
+                }
+            }
+        });
+    }
+
     // Also bind quick action buttons if they exist
     const payBtn = document.querySelector('.action-btn.pay');
     if(payBtn) payBtn.addEventListener('click', (e) => { e.preventDefault(); openModal('deposit'); });
@@ -362,6 +527,7 @@ function handleDashboardPage() {
     transactionForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const amount = parseFloat(document.getElementById('trans-amount').value);
+        const note = noteInput ? noteInput.value.trim() : '';
         
         if (!amount || amount <= 0) {
             window.showDynamicIsland('Please enter a valid amount', 'error');
@@ -370,7 +536,7 @@ function handleDashboardPage() {
         }
 
         try {
-            let endpoint, body;
+            let endpoint, payload;
 
             if (currentTransactionType === 'transfer') {
                 const toUser = recipientInput.value;
@@ -380,11 +546,17 @@ function handleDashboardPage() {
                     return;
                 }
                 endpoint = '/transfer';
-                body = JSON.stringify({ from_user: username, to_user: toUser, amount });
+                payload = { from_user: username, to_user: toUser, amount };
             } else {
                 endpoint = currentTransactionType === 'deposit' ? '/deposit' : '/withdraw';
-                body = JSON.stringify({ username, amount });
+                payload = { username, amount };
             }
+
+            if (note) {
+                payload.note = note;
+            }
+
+            const body = JSON.stringify(payload);
 
             const response = await fetch(`${API_BASE_URL}${endpoint}`, {
                 method: 'POST',
@@ -396,6 +568,19 @@ function handleDashboardPage() {
 
             if (response.ok) {
                 window.showDynamicIsland(`${currentTransactionType.charAt(0).toUpperCase() + currentTransactionType.slice(1)} Successful`, 'success');
+
+                // If backend returned AI analysis, surface it to the user
+                if (data.analysis) {
+                    const category = data.analysis.category;
+                    const tip = data.analysis.tip;
+                    if (window.showDynamicIsland && category) {
+                        window.showDynamicIsland(`AI category: ${category}`, 'success');
+                    }
+                    if (window.showToast && tip) {
+                        window.showToast(`Tip: ${tip}`, 'success');
+                    }
+                }
+
                 closeModal();
                 if (currentTransactionType === 'transfer') {
                     window.fireConfetti();
@@ -469,6 +654,41 @@ async function fetchDashboardData(username) {
     } catch (error) {
         console.error('Dashboard load error:', error);
         // Handle error (e.g., show notification)
+    }
+}
+
+/**
+ * Fetch and display AI spending summary on dashboard or history.
+ * @param {string} username
+ * @param {('dashboard'|'history')} context
+ */
+async function fetchSpendingSummary(username, context) {
+    const endpoint = `${API_BASE_URL}/spending-summary/${username}`;
+    try {
+        const res = await fetch(endpoint);
+        if (!res.ok) throw new Error('Failed to fetch spending summary');
+        const data = await res.json();
+
+        if (context === 'dashboard') {
+            const el = document.getElementById('dashboard-spending-summary');
+            if (!el) return;
+            if (!data.has_data) {
+                el.textContent = 'No spending insights available yet.';
+            } else {
+                el.textContent = data.tip || `Your highest spending category is ${data.category}.`;
+            }
+        } else if (context === 'history') {
+            const el = document.getElementById('history-spending-summary-text');
+            if (!el) return;
+            if (!data.has_data) {
+                el.textContent = 'No spending insights available yet.';
+            } else {
+                el.textContent = data.tip || `Your highest spending category is ${data.category}.`;
+            }
+        }
+    } catch (error) {
+        console.error('Spending summary error:', error);
+        // Fail silently in UI; user still sees table/history
     }
 }
 

@@ -38,6 +38,13 @@
 - Export functionality for financial records
 - Real-time updates for all account activities
 
+### 🤖 AI-Native Financial Insights
+- Optional **transaction notes** on deposits, withdrawals, and transfers
+- Per-transaction **AI categorization** (e.g., Food, Shopping, Transport, Bills, Others)
+- One-line **AI savings tips** surfaced after each transaction and via the robot button in History
+- **Spending summary analyzer** that finds your dominant spending category and provides a single, focused tip
+- Insights visible directly in the **Dashboard** (Recent Activity card) and **History** (AI Spending Insight card)
+
 ### 🎨 Premium UI/UX Design
 - **Glassmorphism Effects**: Translucent cards with sophisticated golden accents
 - **Gold Dust Particles**: Custom background animation with floating gold embers
@@ -60,12 +67,14 @@
 | **Google Fonts** | *Playfair Display* for elegant headings, *Inter* for clean body text |
 
 ### Backend Architecture
-| Technology | Purpose |
-|:-----------|:--------|
-| **Python 3.10+** | Core programming language with type hints |
-| **FastAPI** | Modern, fast web framework with automatic API documentation |
-| **Uvicorn** | Lightning-fast ASGI server with WebSocket support |
-| **Pydantic** | Data validation and serialization with type safety |
+|| Technology | Purpose |
+||:-----------|:--------|
+|| **Python 3.10+** | Core programming language with type hints |
+|| **FastAPI** | Modern, fast web framework with automatic API documentation |
+|| **Uvicorn** | Lightning-fast ASGI server with WebSocket support |
+|| **Pydantic** | Data validation and serialization with type safety |
+|| **OpenAI Python Client (AsyncOpenAI)** | Connects to Google Gemini via OpenAI-compatible API for AI analysis |
+|| **python-dotenv** | Loads `GEMINI_API`/`GEMINI_API_KEY` for local AI configuration |
 
 ### Deployment & DevOps
 | Technology | Purpose |
@@ -138,6 +147,7 @@ uvicorn main:app --reload
 - **Withdraw Cash**: Securely remove funds with validation
 - **Transfer Money**: Send funds to other Onyx users by username
 - **View History**: Access detailed transaction logs with search/filter options
+- **AI Insights**: Add a short note to a transaction to receive AI-powered categorization and a one-line savings tip
 
 ### Testing Transfers
 Open a second browser window in Incognito mode, create another account, and test peer-to-peer transfers between accounts.
@@ -169,6 +179,17 @@ onyx-private/
 └── README.md # Project documentation
 
 ---
+
+## 🔌 AI API Endpoints
+
+These endpoints power the AI-native features. All routes are mounted under the `/api` prefix by `main.py`.
+
+- `POST /api/analyze-transaction`
+  - Request body: `{ "note": "Pizza with friends" }`
+  - Response: `{ "note", "category", "tip" }` for a single transaction note.
+- `GET /api/spending-summary/{username}`
+  - Aggregates recent outflows for the user, finds the **highest spending category**, and returns a single one-line tip.
+  - Used by the Dashboard and History pages to display the AI Spending Insight.
 
 ## 🐛 Troubleshooting
 
